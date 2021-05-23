@@ -38,9 +38,10 @@ phases:
       - kubectl config set-credentials admin --token="$KUBE_TOKEN"
       - kubectl config set-context default --cluster=k8s --user=admin
       - kubectl config use-context default
+      - kubectl delete deploy,svc,hpa room -n airbnb
       - kubectl apply -f kubernetes/deployment.yml
       - kubectl apply -f kubernetes/service.yaml
-      - kubectl apply -f kubernetes/destination-rule.yml
+#      - kubectl apply -f kubernetes/destination-rule.yml
 
 cache:
   paths:
