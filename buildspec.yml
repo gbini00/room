@@ -33,14 +33,14 @@ phases:
     commands:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$_PROJECT_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION
-#      - echo connect kubectl
-#      - kubectl config set-cluster k8s --server="$KUBE_URL" --insecure-skip-tls-verify=true
-#      - kubectl config set-credentials admin --token="$KUBE_TOKEN"
-#      - kubectl config set-context default --cluster=k8s --user=admin
-#      - kubectl config use-context default
-#      - kubectl apply -f kubernetes/deployment.yml
-#      - kubectl apply -f kubernetes/service.yaml
-#      - kubectl apply -f kubernetes/destination-rule.yml
+      - echo connect kubectl
+      - kubectl config set-cluster k8s --server="$KUBE_URL" --insecure-skip-tls-verify=true
+      - kubectl config set-credentials admin --token="$KUBE_TOKEN"
+      - kubectl config set-context default --cluster=k8s --user=admin
+      - kubectl config use-context default
+      - kubectl apply -f kubernetes/deployment.yml
+      - kubectl apply -f kubernetes/service.yaml
+      - kubectl apply -f kubernetes/destination-rule.yml
 
 cache:
   paths:
