@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
         - name: room
-          image: 985702435631.dkr.ecr.ap-northeast-2.amazonaws.com/room:latest
+#          image: 985702435631.dkr.ecr.ap-northeast-2.amazonaws.com/room:latest
+          image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/room:latest
           ports:
             - containerPort: 8080
 #          resources:
