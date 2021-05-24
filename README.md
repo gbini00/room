@@ -20,34 +20,23 @@
 
 
 # Deploy/ Pipeline
-    CodeBuild 프로젝트 생성
-	AWS_ACCOUNT_ID 환경 변수 세팅
-	ECR 관련 정책을 추가
-		SPC03-codebuild-policy 정책 생성
-	KUBE_URL 환경 변수 세팅
-		https://40ED69158C1B9643987B31F49DC2F915.gr7.ap-northeast-2.eks.amazonaws.com
-	KUBE_TOKEN 환경 변수 세팅
+각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD는 buildspec.yml을 이용한 AWS codebuild를 사용하였습니다.
+
+CodeBuild 프로젝트를 생성하고 AWS_ACCOUNT_ID, KUBE_URL, KUBE_TOKEN 환경 변수 세팅을 한다
 		kubectl apply -f eks-admin-service-account.yml
+![codebuild(sa)](https://user-images.githubusercontent.com/38099203/119293259-ff52ec80-bc8c-11eb-8671-b9a226811762.PNG)
 		kubectl apply -f eks-admin-cluster-role-binding.yml
+![codebuild(role)](https://user-images.githubusercontent.com/38099203/119293300-1abdf780-bc8d-11eb-9b07-ad173237efb1.PNG)
 		kubectl -n kube-system get secret
-			eks-admin-token-rjpmq                            kubernetes.io/service-account-token   3      2m5s
 		kubectl -n kube-system describe secret eks-admin-token-rjpmq
-			Name:         eks-admin-token-rjpmq
-			Namespace:    kube-system
-			Labels:       <none>
-			Annotations:  kubernetes.io/service-account.name: eks-admin
-						  kubernetes.io/service-account.uid: 135e355d-c80f-41ea-85ca-67ad7a9bcd0b
-
-			Type:  kubernetes.io/service-account-token
-
-			Data
-			====
-			namespace:  11 bytes
-			token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IjNmdEpnM1JzZEk1bm05a2N1SDAwWV9kWUliNDVfRFVIbHpwUG9BZERrOGsifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJla3MtYWRtaW4tdG9rZW4tcmpwbXEiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZWtzLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMTM1ZTM1NWQtYzgwZi00MWVhLTg1Y2EtNjdhZDdhOWJjZDBiIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmVrcy1hZG1pbiJ9.Qz4pL4IXkI423an0hxQhIIEpGB-6o48JPdPzgEp5_nfNDihjf97g8zZ2CWUv480mAcxcDMg3bt6RyyopVL8N2tGkN5TMA6ii6VuuGbSrt5gvSGyzroBJ6bkJNFVIhb-XY6J1YPVVQE-tmgHG0p2OuvZDYxfNVnvyly4IGDu_OkLS4TIVjkF9W0EQSlk9ARpxXFvWCwB0TQGFdvtHsTzJ-Cmfqv-GN63Hykx_dWIow-vVRtBtIBEG1AvDawA8rypqaHAC4AM1Psy7FAI276qt9RR8O1UYGTm_uH1HNPWQiT1vczyJVxmXcd_UuzQIfh7Sat8IJxM-xA9cPat2rCC5Iw
-			ca.crt:     1025 bytes
+![codebuild(token)](https://user-images.githubusercontent.com/38099203/119293511-84d69c80-bc8d-11eb-99c7-e8929e6a41e4.PNG)
+		buildspec.yml 파일 
+			마이크로 서비스 room의 yml 파일 이용하도록 세팅
 ![codebuild(buildspec)](https://user-images.githubusercontent.com/38099203/119283849-30292680-bc79-11eb-9f86-cbb715e74846.PNG)
-![codebuild(로그)](https://user-images.githubusercontent.com/38099203/119283850-30c1bd00-bc79-11eb-9547-1ff1f62e48a4.PNG)
+		codebuild 프로젝트 및 빌드 이력
 ![codebuild(프로젝트)](https://user-images.githubusercontent.com/38099203/119283851-315a5380-bc79-11eb-9b2a-b4522d22d009.PNG)
+[codebuild(로그)](https://user-images.githubusercontent.com/38099203/119283850-30c1bd00-bc79-11eb-9547-1ff1f62e48a4.PNG)
+
 
 # Circuit Breaker
 	kubectl run siege --image=apexacme/siege-nginx -n airbnb
