@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airbnb-config
+  namespace: airbnb
+data:
+  active.profile: Active

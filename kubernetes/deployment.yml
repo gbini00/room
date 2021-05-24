@@ -35,6 +35,10 @@ spec:
             httpGet:
               path: '/actuator/health'
               port: 8080
+#            exec:
+#              command:
+#              - cat
+#              - /tmp/healthy
             initialDelaySeconds: 25
             timeoutSeconds: 2
             periodSeconds: 5
@@ -53,3 +57,9 @@ spec:
             periodSeconds: 5
             failureThreshold: 5
             successThreshold: 1
+          env:
+            - name: active.profile
+              valueFrom:
+                configMapKeyRef:
+                  name: airbnb-config
+                  key: active.profile
