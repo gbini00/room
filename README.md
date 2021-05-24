@@ -23,16 +23,28 @@
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD는 buildspec.yml을 이용한 AWS codebuild를 사용하였습니다.
 
 CodeBuild 프로젝트를 생성하고 AWS_ACCOUNT_ID, KUBE_URL, KUBE_TOKEN 환경 변수 세팅을 한다
+
+		SA 생성
 		kubectl apply -f eks-admin-service-account.yml
+
 ![codebuild(sa)](https://user-images.githubusercontent.com/38099203/119293259-ff52ec80-bc8c-11eb-8671-b9a226811762.PNG)
+
+		Role 생성
 		kubectl apply -f eks-admin-cluster-role-binding.yml
+
 ![codebuild(role)](https://user-images.githubusercontent.com/38099203/119293300-1abdf780-bc8d-11eb-9b07-ad173237efb1.PNG)
+
+		Token 확인
 		kubectl -n kube-system get secret
 		kubectl -n kube-system describe secret eks-admin-token-rjpmq
+
 ![codebuild(token)](https://user-images.githubusercontent.com/38099203/119293511-84d69c80-bc8d-11eb-99c7-e8929e6a41e4.PNG)
+
 		buildspec.yml 파일 
 			마이크로 서비스 room의 yml 파일 이용하도록 세팅
+			
 ![codebuild(buildspec)](https://user-images.githubusercontent.com/38099203/119283849-30292680-bc79-11eb-9f86-cbb715e74846.PNG)
+
 		codebuild 프로젝트 및 빌드 이력
 ![codebuild(프로젝트)](https://user-images.githubusercontent.com/38099203/119283851-315a5380-bc79-11eb-9b2a-b4522d22d009.PNG)
 [codebuild(로그)](https://user-images.githubusercontent.com/38099203/119283850-30c1bd00-bc79-11eb-9547-1ff1f62e48a4.PNG)
