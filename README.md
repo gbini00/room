@@ -14,9 +14,9 @@
 	configmap.yml
 	deployment.yml
 	describe pod
-	![deployment yml](https://user-images.githubusercontent.com/38099203/119283834-269fbe80-bc79-11eb-9624-d824f450ff3d.PNG)
-	![describe pod](https://user-images.githubusercontent.com/38099203/119283835-27385500-bc79-11eb-84e8-e3caf50295c3.PNG)
-	![configmap](https://user-images.githubusercontent.com/38099203/119283836-27d0eb80-bc79-11eb-8232-25f5e2170956.PNG)
+![deployment yml](https://user-images.githubusercontent.com/38099203/119283834-269fbe80-bc79-11eb-9624-d824f450ff3d.PNG)
+![describe pod](https://user-images.githubusercontent.com/38099203/119283835-27385500-bc79-11eb-84e8-e3caf50295c3.PNG)
+![configmap](https://user-images.githubusercontent.com/38099203/119283836-27d0eb80-bc79-11eb-8232-25f5e2170956.PNG)
 
 
 # Deploy/ Pipeline
@@ -45,9 +45,9 @@
 			namespace:  11 bytes
 			token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IjNmdEpnM1JzZEk1bm05a2N1SDAwWV9kWUliNDVfRFVIbHpwUG9BZERrOGsifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJla3MtYWRtaW4tdG9rZW4tcmpwbXEiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZWtzLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMTM1ZTM1NWQtYzgwZi00MWVhLTg1Y2EtNjdhZDdhOWJjZDBiIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmVrcy1hZG1pbiJ9.Qz4pL4IXkI423an0hxQhIIEpGB-6o48JPdPzgEp5_nfNDihjf97g8zZ2CWUv480mAcxcDMg3bt6RyyopVL8N2tGkN5TMA6ii6VuuGbSrt5gvSGyzroBJ6bkJNFVIhb-XY6J1YPVVQE-tmgHG0p2OuvZDYxfNVnvyly4IGDu_OkLS4TIVjkF9W0EQSlk9ARpxXFvWCwB0TQGFdvtHsTzJ-Cmfqv-GN63Hykx_dWIow-vVRtBtIBEG1AvDawA8rypqaHAC4AM1Psy7FAI276qt9RR8O1UYGTm_uH1HNPWQiT1vczyJVxmXcd_UuzQIfh7Sat8IJxM-xA9cPat2rCC5Iw
 			ca.crt:     1025 bytes
-	![codebuild(buildspec)](https://user-images.githubusercontent.com/38099203/119283849-30292680-bc79-11eb-9f86-cbb715e74846.PNG)
-	![codebuild(로그)](https://user-images.githubusercontent.com/38099203/119283850-30c1bd00-bc79-11eb-9547-1ff1f62e48a4.PNG)
-	![codebuild(프로젝트)](https://user-images.githubusercontent.com/38099203/119283851-315a5380-bc79-11eb-9b2a-b4522d22d009.PNG)
+![codebuild(buildspec)](https://user-images.githubusercontent.com/38099203/119283849-30292680-bc79-11eb-9f86-cbb715e74846.PNG)
+![codebuild(로그)](https://user-images.githubusercontent.com/38099203/119283850-30c1bd00-bc79-11eb-9547-1ff1f62e48a4.PNG)
+![codebuild(프로젝트)](https://user-images.githubusercontent.com/38099203/119283851-315a5380-bc79-11eb-9b2a-b4522d22d009.PNG)
 
 # Circuit Breaker
 	kubectl run siege --image=apexacme/siege-nginx -n airbnb
@@ -59,24 +59,24 @@
 	siege -c1 -t10S -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
     siege -c2 -t10S -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
 
-	![Circuit Breaker(yml)](https://user-images.githubusercontent.com/38099203/119283820-1c7dc000-bc79-11eb-9040-352939537d83.PNG)
-	![Circuit Breaker(siege)](https://user-images.githubusercontent.com/38099203/119283819-1be52980-bc79-11eb-8642-5361f65dee3e.PNG)
-	![Circuit Breaker(kiali)](https://user-images.githubusercontent.com/38099203/119283822-1d165680-bc79-11eb-9b33-a984c4c6c70e.PNG)
+![Circuit Breaker(yml)](https://user-images.githubusercontent.com/38099203/119283820-1c7dc000-bc79-11eb-9040-352939537d83.PNG)
+![Circuit Breaker(siege)](https://user-images.githubusercontent.com/38099203/119283819-1be52980-bc79-11eb-8642-5361f65dee3e.PNG)
+![Circuit Breaker(kiali)](https://user-images.githubusercontent.com/38099203/119283822-1d165680-bc79-11eb-9b33-a984c4c6c70e.PNG)
 	
 # Autoscale (HPA)
     kubectl autoscale deployment room -n airbnb --cpu-percent=50 --min=1 --max=10
     kubectl get hpa -n airbnb
 	siege -c100 -t60S -r10 -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
 
-	![Autoscale (HPA)](https://user-images.githubusercontent.com/38099203/119283787-0a038680-bc79-11eb-8d9b-d8aed8847fef.PNG)
-	![Autoscale (HPA)(siege)](https://user-images.githubusercontent.com/38099203/119283780-08d25980-bc79-11eb-8c34-0f1c8885f208.PNG)
-	![Autoscale (HPA)(kubectl autoscale)](https://user-images.githubusercontent.com/38099203/119283789-0a038680-bc79-11eb-9d2e-e6821ca101b9.PNG)
-	![Autoscale (HPA)(결과)](https://user-images.githubusercontent.com/38099203/119283785-096af000-bc79-11eb-8227-6133c31aed87.PNG)
+![Autoscale (HPA)](https://user-images.githubusercontent.com/38099203/119283787-0a038680-bc79-11eb-8d9b-d8aed8847fef.PNG)
+![Autoscale (HPA)(siege)](https://user-images.githubusercontent.com/38099203/119283780-08d25980-bc79-11eb-8c34-0f1c8885f208.PNG)
+![Autoscale (HPA)(kubectl autoscale)](https://user-images.githubusercontent.com/38099203/119283789-0a038680-bc79-11eb-9d2e-e6821ca101b9.PNG)
+![Autoscale (HPA)(결과)](https://user-images.githubusercontent.com/38099203/119283785-096af000-bc79-11eb-8227-6133c31aed87.PNG)
 	
 # Zero-downtime deploy (Readiness Probe)
 
 	siege -c100 -t60S -r10 -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
-	![Zero-downtime deploy (Readiness Probe)(siege)](https://user-images.githubusercontent.com/38099203/119283891-4931d780-bc79-11eb-9efe-ca34b0fd30e2.PNG)
+![Zero-downtime deploy (Readiness Probe)(siege)](https://user-images.githubusercontent.com/38099203/119283891-4931d780-bc79-11eb-9efe-ca34b0fd30e2.PNG)
 	
 # Self-healing (Liveness Probe)
     ## 방법1) 
