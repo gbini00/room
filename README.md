@@ -1,24 +1,3 @@
-# Saga
-	https://github.com/event storming/products/ 의 saga rollback 브랜치 확인
-	https://github.com/event storming/orders/ 의 saga rollback 브랜치 확인
-# CQRS
-	https://github.com/eventstorming/mypage/blob/master/src/main/java/com/example/template/event/EventListener.java
-# Correlation
-	https://github.com/sea-boy/correlation-id-in-msa
-	이벤트와 폴리시 Correlation key 연결
-# Req/Resp
-	동기호출
-# Gateway
-
-# Config Map/ Persistence Volume
-	configmap.yml
-	deployment.yml
-	describe pod
-![deployment yml](https://user-images.githubusercontent.com/38099203/119283834-269fbe80-bc79-11eb-9624-d824f450ff3d.PNG)
-![describe pod](https://user-images.githubusercontent.com/38099203/119283835-27385500-bc79-11eb-84e8-e3caf50295c3.PNG)
-![configmap](https://user-images.githubusercontent.com/38099203/119283836-27d0eb80-bc79-11eb-8232-25f5e2170956.PNG)
-
-
 # 운영
 
 ## CI/CD 설정
@@ -208,50 +187,137 @@ Shortest transaction:           0.00
   virtualhost 설정과 동적 Scale out (replica의 자동적 추가,HPA) 을 통하여 시스템을 확장 해주는 후속처리가 필요.
 
 
-# Autoscale (HPA)
-    kubectl autoscale deployment room -n airbnb --cpu-percent=50 --min=1 --max=10
-    kubectl get hpa -n airbnb
-	siege -c100 -t60S -r10 -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
+### 오토스케일 아웃
+앞서 CB 는 시스템을 안정되게 운영할 수 있게 해줬지만 사용자의 요청을 100% 받아들여주지 못했기 때문에 이에 대한 보완책으로 자동화된 확장 기능을 적용하고자 한다. 
 
+- room deployment.yml 파일에 resources 설정을 추가한다
 ![Autoscale (HPA)](https://user-images.githubusercontent.com/38099203/119283787-0a038680-bc79-11eb-8d9b-d8aed8847fef.PNG)
-![Autoscale (HPA)(siege)](https://user-images.githubusercontent.com/38099203/119283780-08d25980-bc79-11eb-8c34-0f1c8885f208.PNG)
-![Autoscale (HPA)(kubectl autoscale)](https://user-images.githubusercontent.com/38099203/119283789-0a038680-bc79-11eb-9d2e-e6821ca101b9.PNG)
-![Autoscale (HPA)(결과)](https://user-images.githubusercontent.com/38099203/119283785-096af000-bc79-11eb-8227-6133c31aed87.PNG)
-	
-# Zero-downtime deploy (Readiness Probe)
 
-	siege -c100 -t60S -r10 -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
-![Zero-downtime deploy (Readiness Probe)(siege)](https://user-images.githubusercontent.com/38099203/119283891-4931d780-bc79-11eb-9efe-ca34b0fd30e2.PNG)
-	
+- room 서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 50프로를 넘어서면 replica 를 10개까지 늘려준다:
+```
+kubectl autoscale deployment room -n airbnb --cpu-percent=50 --min=1 --max=10
+```
+![Autoscale (HPA)(kubectl autoscale 명령어)](https://user-images.githubusercontent.com/38099203/119299474-ec92e480-bc99-11eb-9bc3-8c5246b02783.PNG)
+
+- 부하를 동시사용자 100명, 1분 동안 걸어준다.
+```
+siege -c100 -t60S -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
+```
+- 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다
+```
+kubectl get deploy room -w -n airbnb 
+```
+- 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
+![Autoscale (HPA)(모니터링)](https://user-images.githubusercontent.com/38099203/119299704-6a56f000-bc9a-11eb-9ba8-55e5978f3739.PNG)
+
+- siege 의 로그를 보아도 전체적인 성공률이 높아진 것을 확인 할 수 있다. 
+```
+Lifting the server siege...
+Transactions:                  15615 hits
+Availability:                 100.00 %
+Elapsed time:                  59.44 secs
+Data transferred:               3.90 MB
+Response time:                  0.32 secs
+Transaction rate:             262.70 trans/sec
+Throughput:                     0.07 MB/sec
+Concurrency:                   85.04
+Successful transactions:       15675
+Failed transactions:               0
+Longest transaction:            2.55
+Shortest transaction:           0.01
+```
+
+## 무정지 재배포
+
+* 먼저 무정지 재배포가 100% 되는 것인지 확인하기 위해서 Autoscaler 이나 CB 설정을 제거함
+
+- seige 로 배포작업 직전에 워크로드를 모니터링 함.
+```
+siege -c100 -t60S -r10 -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
+
+** SIEGE 4.0.4
+** Preparing 1 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 201     0.01 secs:     260 bytes ==> POST http://room:8080/rooms
+HTTP/1.1 201     0.01 secs:     260 bytes ==> POST http://room:8080/rooms
+HTTP/1.1 201     0.01 secs:     260 bytes ==> POST http://room:8080/rooms
+HTTP/1.1 201     0.03 secs:     260 bytes ==> POST http://room:8080/rooms
+HTTP/1.1 201     0.00 secs:     260 bytes ==> POST http://room:8080/rooms
+HTTP/1.1 201     0.02 secs:     260 bytes ==> POST http://room:8080/rooms
+HTTP/1.1 201     0.01 secs:     260 bytes ==> POST http://room:8080/rooms
+HTTP/1.1 201     0.01 secs:     260 bytes ==> POST http://room:8080/rooms
+
+```
+
+- 새버전으로의 배포 시작
+```
+kubectl set image ...
+```
+
+- seige 의 화면으로 넘어가서 Availability 가 100% 미만으로 떨어졌는지 확인
+
+```
+siege -c100 -t60S -r10 -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
+
+
+Transactions:                   7732 hits
+Availability:                  87.32 %
+Elapsed time:                  17.12 secs
+Data transferred:               1.93 MB
+Response time:                  0.18 secs
+Transaction rate:             451.64 trans/sec
+Throughput:                     0.11 MB/sec
+Concurrency:                   81.21
+Successful transactions:        7732
+Failed transactions:            1123
+Longest transaction:            0.94
+Shortest transaction:           0.00
+
+```
+배포기간중 Availability 가 평소 100%에서 87% 대로 떨어지는 것을 확인. 원인은 쿠버네티스가 성급하게 새로 올려진 서비스를 READY 상태로 인식하여 서비스 유입을 진행한 것이기 때문. 이를 막기위해 Readiness Probe 를 설정함:
+
+```
+# deployment.yaml 의 readiness probe 의 설정:
+```
+
+![probe설정](https://user-images.githubusercontent.com/38099203/119301424-71333200-bc9d-11eb-9f75-f8c98fce70a3.PNG)
+
+```
+kubectl apply -f kubernetes/deployment.yml
+```
+
+- 동일한 시나리오로 재배포 한 후 Availability 확인:
+```
+Lifting the server siege...
+Transactions:                  27657 hits
+Availability:                 100.00 %
+Elapsed time:                  59.41 secs
+Data transferred:               6.91 MB
+Response time:                  0.21 secs
+Transaction rate:             465.53 trans/sec
+Throughput:                     0.12 MB/sec
+Concurrency:                   99.60
+Successful transactions:       27657
+Failed transactions:               0
+Longest transaction:            1.20
+Shortest transaction:           0.00
+
+```
+
+배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
+
+
 # Self-healing (Liveness Probe)
-    ## 방법1) 
-	  - room deployment.yml 파일 수정 
-	    콘테이너 실행후 /tmp/healthy 파일을 만들고 30초 후 삭제하도록 함
-		livenessProbe에 'cat /tmp/healthy'으로 검증하도록 함
-	    이미지 경로 : deployment yml(1)(빨).PNG
-	  - kubectl describe pod room -n airbnb 실행으로 확인
-	    컨테이너 실행 후 30초 동인은 정상이나 30초 이후 /tmp/healthy 파일이 삭제되어 livenessProbe에서 실패를 리턴하게 됨
-	    이미지 경로 : Self-healing (Liveness Probe)(1-1)(빨).PNG
-    ## 방법2) 
-	  - room deployment.yml 파일 수정
-	    정상 기동까지 약 20초 정도 걸리나 initialDelaySeconds를 2초 periodSeconds를 1초로 함 
-		20초 > initialDelaySeconds (2초) + (failureThreshold (디폴트 3초) * periodSeconds (1초))가 되어 컨테이터 다시 시작
-		이미지 경로 : log(2).PNG, deployment yml(2)(빨).PNG
-      - kubectl describe pod room -n airbnb 실행으로 확인
-	    정상 기동까지 약 5초 걸리나, 초기 딜레이 2초 후 livenessProbe 실행하나 살패를 리턴하고 1초 후 다시 livenessProbe 실행하나 실패하여 재기동을 함
-		이미지 경로 : Self-healing (Liveness Probe)(2-1)(빨).PNG
-
-![Self-healing (Liveness Probe)(2-1)](https://user-images.githubusercontent.com/38099203/119283861-3b7c5200-bc79-11eb-85f2-3e3a5dedb352.PNG)
+- room deployment.yml 파일 수정 
+```
+콘테이너 실행후 /tmp/healthy 파일을 만들고 30초 후 삭제하도록 함
+livenessProbe에 'cat /tmp/healthy'으로 검증하도록 함
+```
 ![deployment yml(1)(빨)](https://user-images.githubusercontent.com/38099203/119283865-3c14e880-bc79-11eb-906b-3764af10d8ad.PNG)
-![deployment yml(1)](https://user-images.githubusercontent.com/38099203/119283866-3cad7f00-bc79-11eb-8f2c-41dfddf79267.PNG)
-![deployment yml(2)(빨)](https://user-images.githubusercontent.com/38099203/119283867-3cad7f00-bc79-11eb-879d-c8071f544aa5.PNG)
-![deployment yml(2)](https://user-images.githubusercontent.com/38099203/119283868-3d461580-bc79-11eb-9636-26158af94101.PNG)
-![log(2)(빨)](https://user-images.githubusercontent.com/38099203/119283869-3d461580-bc79-11eb-9b78-229fd9206c88.PNG)
-![log(2)](https://user-images.githubusercontent.com/38099203/119283871-3ddeac00-bc79-11eb-8ba1-ea479bcfbe93.PNG)
-![Self-healing (Liveness Probe)(1)](https://user-images.githubusercontent.com/38099203/119283872-3e774280-bc79-11eb-8bb0-37bce6f2d642.PNG)
+
+- kubectl describe pod room -n airbnb 실행으로 확인
+```
+컨테이너 실행 후 30초 동인은 정상이나 30초 이후 /tmp/healthy 파일이 삭제되어 livenessProbe에서 실패를 리턴하게 됨
+
+```
 ![Self-healing (Liveness Probe)(1-1)(빨)](https://user-images.githubusercontent.com/38099203/119283874-3e774280-bc79-11eb-9d79-733b1c465739.PNG)
-![Self-healing (Liveness Probe)(1-1)](https://user-images.githubusercontent.com/38099203/119283875-3f0fd900-bc79-11eb-9c2e-aca5885d84f5.PNG)
-![Self-healing (Liveness Probe)(2-1)(빨)](https://user-images.githubusercontent.com/38099203/119283876-3f0fd900-bc79-11eb-8d9e-9d30520f2354.PNG)
-
-
-# Polyglot
