@@ -161,7 +161,7 @@ HTTP/1.1 503     0.00 secs:      81 bytes ==> POST http://room:8080/rooms
 - kiali 화면에 서킷 브레이크 확인
 ```
 
-![Circuit Breaker(kiali)](https://user-images.githubusercontent.com/38099203/119283822-1d165680-bc79-11eb-9b33-a984c4c6c70e.PNG)
+![Circuit Breaker(kiali)](https://user-images.githubusercontent.com/38099203/119298194-7f7e4f80-bc97-11eb-8447-678eece29e5c.PNG)
 
 ```
 
