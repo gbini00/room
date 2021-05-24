@@ -127,7 +127,7 @@ HTTP/1.1 201     0.03 secs:     256 bytes ==> POST http://room:8080/rooms
 HTTP/1.1 201     0.02 secs:     256 bytes ==> POST http://room:8080/rooms
 ```
 
-동시사용자 2로 부하 
+- 동시사용자 2로 부하 
 503 에러 발생
 ```
 siege -c2 -t10S -v --content-type "application/json" 'http://room:8080/rooms POST {"desc": "Beautiful House3"}'
@@ -157,13 +157,15 @@ HTTP/1.1 201     0.02 secs:     258 bytes ==> POST http://room:8080/rooms
 HTTP/1.1 201     0.02 secs:     258 bytes ==> POST http://room:8080/rooms
 HTTP/1.1 503     0.00 secs:      81 bytes ==> POST http://room:8080/rooms
 ```
-kiali 화면에 서킷 브레이크 확인
-```
-![Circuit Breaker(kiali)](https://user-images.githubusercontent.com/38099203/119283822-1d165680-bc79-11eb-9b33-a984c4c6c70e.PNG)
+
+- kiali 화면에 서킷 브레이크 확인
 ```
 
-다시 최소 Connection pool로 부하 
-정상 확인
+![Circuit Breaker(kiali)](https://user-images.githubusercontent.com/38099203/119283822-1d165680-bc79-11eb-9b33-a984c4c6c70e.PNG)
+
+```
+
+- 다시 최소 Connection pool로 부하 다시 정상 확인
 
 ```
 ** SIEGE 4.0.4
