@@ -6,7 +6,7 @@ metadata:
   labels:
     app: room
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: room
@@ -15,6 +15,7 @@ spec:
       labels: 
         app: room
     spec:
+      serviceAccount: efs-provisioner
       containers:
         - name: room
           image: 985702435631.dkr.ecr.ap-northeast-2.amazonaws.com/room:latest
@@ -27,10 +28,10 @@ spec:
 #            limits:
 #              memory: "512Mi"
 #              cpu: "2500m"
-#           args:
-#           - /bin/sh
-#           - -c
-#           - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
+#          args:
+#            - /bin/sh
+#            - -c
+#            - touch /tmp/healthy; sleep 90; rm -rf /tmp/healthy; sleep 600
           readinessProbe:
             httpGet:
               path: '/actuator/health'
@@ -48,18 +49,41 @@ spec:
             httpGet:
               path: '/actuator/health'
               port: 8080
-#             exec:
-#               command:
-#               - cat
-#               - /tmp/healthy
-            initialDelaySeconds: 30
+#            exec:
+#              command:
+#              - cat
+#              - /tmp/healthy
+            initialDelaySeconds: 60
             timeoutSeconds: 2
             periodSeconds: 5
             failureThreshold: 5
             successThreshold: 1
           env:
-            - name: active.profile
+            - name: MAX_RESERVATION_PER_PERSION
               valueFrom:
                 configMapKeyRef:
                   name: airbnb-config
-                  key: active.profile
+                  key: max_reservation_per_person
+           - name: UI_PROPERTIES_FILE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: airbnb-config
+                  key: ui_properties_file_name
+          volumeMounts:
+          - mountPath: "/mnt/aws"
+            name: volume
+      volumes:
+        - name: volume
+          persistentVolumeClaim:
+            claimName: aws-efs
+        # 파드 레벨에서 볼륨을 설정한 다음, 해당 파드 내의 컨테이너에 마운트한다.
+        - name: config
+          configMap:
+            # 마운트하려는 컨피그맵의 이름을 제공한다.
+            name: game-demo
+              # 컨피그맵에서 파일로 생성할 키 배열
+              items:
+                - key: "room.properties"
+                  path: "room.properties"
+                - key: "kakao-interface.properties"
+                  path: "kakao-interface.properties"
