@@ -7,12 +7,3 @@ data:
   # 속성과 비슷한 키; 각 키는 간단한 값으로 매핑됨
   max_reservation_per_person: "10"
   ui_properties_file_name: "user-interface.properties"
-
-  # 파일과 비슷한 키
-  room.properties: |
-    room.types=hotel,pansion,guesthouse
-    room.maximum-count=5    
-  kakao-interface.properties: |
-    kakao.font.color=blud
-    kakao.color.bad=yellow
-    kakao.textmode=true

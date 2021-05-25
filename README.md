@@ -585,15 +585,6 @@ data:
   # 단일 key-value
   max_reservation_per_person: "10"
   ui_properties_file_name: "user-interface.properties"
-
-  # 다수의 key-value
-  room.properties: |
-    room.types=hotel,pansion,guesthouse
-    room.maximum-count=5    
-  kakao-interface.properties: |
-    kakao.font.color=blud
-    kakao.color.bad=yellow
-    kakao.textmode=true
 ```
 
 2. deployment.yml에 적용하기
@@ -622,14 +613,5 @@ kubectl apply -f deployment.yml
         - name: volume
           persistentVolumeClaim:
             claimName: aws-efs
-        - name: config
-          configMap:
-            # cofingmap에 있는 다수의 key-value
-            name: game-demo
-              items:
-                - key: "room.properties"
-                  path: "room.properties"
-                - key: "kakao-interface.properties"
-                  path: "kakao-interface.properties"
 ```
 

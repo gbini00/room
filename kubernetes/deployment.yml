@@ -6,7 +6,7 @@ metadata:
   labels:
     app: room
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: room
@@ -64,7 +64,7 @@ spec:
                 configMapKeyRef:
                   name: airbnb-config
                   key: max_reservation_per_person
-           - name: UI_PROPERTIES_FILE_NAME
+            - name: UI_PROPERTIES_FILE_NAME
               valueFrom:
                 configMapKeyRef:
                   name: airbnb-config
@@ -76,14 +76,3 @@ spec:
         - name: volume
           persistentVolumeClaim:
             claimName: aws-efs
-        # 파드 레벨에서 볼륨을 설정한 다음, 해당 파드 내의 컨테이너에 마운트한다.
-        - name: config
-          configMap:
-            # 마운트하려는 컨피그맵의 이름을 제공한다.
-            name: game-demo
-              # 컨피그맵에서 파일로 생성할 키 배열
-              items:
-                - key: "room.properties"
-                  path: "room.properties"
-                - key: "kakao-interface.properties"
-                  path: "kakao-interface.properties"
